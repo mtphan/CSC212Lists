@@ -14,17 +14,48 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 	@Override
 	public T removeFront() {
 		checkNotEmpty();
-		throw new TODOErr();
+		T removed = this.start.value;
+		this.start = this.start.next;
+		return removed;
 	}
 
 	@Override
 	public T removeBack() {
-		throw new TODOErr();
+		checkNotEmpty();
+		Node<T> secondToLastNode = null;
+		T removed;
+		
+		for (Node<T> n = this.start; n.next != null; n = n.next) {
+			secondToLastNode = n;
+		}
+		if (secondToLastNode == null) {
+			removed = this.start.value;
+			this.start = null;
+		} else {
+			removed = secondToLastNode.next.value;
+			secondToLastNode.next = null;
+		}
+		return removed;
 	}
 
 	@Override
 	public T removeIndex(int index) {
-		throw new TODOErr();
+		checkNotEmpty();
+		
+		if (index == 0) {
+			return removeFront();
+		}
+		
+		int at = 0;
+		T removed;
+		for (Node<T> n = this.start; n.next != null; n = n.next) {
+			if (++at == index) {
+				removed = n.next.value;
+				n.next = n.next.next;
+				return removed;
+			}
+		}
+		throw new BadIndexError(index);
 	}
 
 	@Override
@@ -34,12 +65,32 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 
 	@Override
 	public void addBack(T item) {
-		throw new TODOErr();
+		Node<T> lastNode = null;
+		for (Node<T> n = this.start; n != null; n = n.next) {
+			lastNode = n;
+		}
+		if (lastNode != null) {
+			lastNode.next = new Node<T>(item, null);
+		} else {
+			this.start = new Node<T>(item, null);
+		}
 	}
 
 	@Override
 	public void addIndex(int index, T item) {
-		throw new TODOErr();
+		if (index == 0) {
+			addFront(item);
+			return;
+		}
+		int at = 0;
+		for (Node<T> n = this.start; n != null; n = n.next) {
+			if (++at == index) {
+				Node<T> newNode = new Node<T>(item, n.next);
+				n.next = newNode;
+				return;
+			}
+		}
+		throw new BadIndexError(index);
 	}
 	
 	
@@ -47,13 +98,17 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 	@Override
 	public T getFront() {
 		checkNotEmpty();
-		throw new TODOErr();
+		return this.start.value;
 	}
 
 	@Override
 	public T getBack() {
 		checkNotEmpty();
-		throw new TODOErr();
+		T lastNodeValue = null;
+		for (Node<T> n = this.start; n != null; n = n.next) {
+			lastNodeValue = n.value;
+		}
+		return lastNodeValue;
 	}
 
 	@Override
@@ -72,7 +127,15 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 	@Override
 	public void setIndex(int index, T value) {
 		checkNotEmpty();
-		throw new TODOErr();
+		
+		int at = 0;
+		for (Node<T> n = this.start; n != null; n = n.next) {
+			if (at++ == index) {
+				n.value = value;
+				return;
+			}
+		}
+		throw new BadIndexError(index);
 	}
 
 	@Override
