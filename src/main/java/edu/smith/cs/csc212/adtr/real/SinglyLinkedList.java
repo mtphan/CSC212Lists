@@ -2,7 +2,6 @@ package edu.smith.cs.csc212.adtr.real;
 
 import edu.smith.cs.csc212.adtr.ListADT;
 import edu.smith.cs.csc212.adtr.errors.BadIndexError;
-import edu.smith.cs.csc212.adtr.errors.TODOErr;
 
 public class SinglyLinkedList<T> extends ListADT<T> {
 	/**
@@ -47,10 +46,9 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 		}
 		
 		int at = 0;
-		T removed;
 		for (Node<T> n = this.start; n.next != null; n = n.next) {
 			if (++at == index) {
-				removed = n.next.value;
+				T removed = n.next.value;
 				n.next = n.next.next;
 				return removed;
 			}

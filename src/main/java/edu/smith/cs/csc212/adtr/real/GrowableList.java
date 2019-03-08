@@ -1,7 +1,6 @@
 package edu.smith.cs.csc212.adtr.real;
 
 import edu.smith.cs.csc212.adtr.ListADT;
-import edu.smith.cs.csc212.adtr.errors.TODOErr;
 
 public class GrowableList<T> extends ListADT<T> {
 	public static final int START_SIZE = 10;

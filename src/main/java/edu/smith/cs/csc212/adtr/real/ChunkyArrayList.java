@@ -3,7 +3,6 @@ package edu.smith.cs.csc212.adtr.real;
 import edu.smith.cs.csc212.adtr.ListADT;
 import edu.smith.cs.csc212.adtr.errors.BadIndexError;
 import edu.smith.cs.csc212.adtr.errors.EmptyListError;
-import edu.smith.cs.csc212.adtr.errors.TODOErr;
 
 /**
  * This is a data structure that has an array inside each node of an ArrayList.
@@ -28,33 +27,68 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 
 	@Override
 	public T removeFront() {
-		throw new TODOErr();
+		checkNotEmpty();
+		T removed = this.chunks.getFront().removeFront();
+		if (this.chunks.getFront().isEmpty()) {
+			this.chunks.removeFront();
+		}
+		return removed;
 	}
 
 	@Override
 	public T removeBack() {
-		throw new TODOErr();
+		checkNotEmpty();
+		T removed = this.chunks.getBack().removeBack();
+		if (this.chunks.getBack().isEmpty()) {
+			this.chunks.removeBack();
+		}
+		return removed;
 	}
 
 	@Override
 	public T removeIndex(int index) {
-		throw new TODOErr();
+		checkNotEmpty();
+		int start = 0;
+		int chunkIndex = 0;
+		for (FixedSizeList<T> chunk : this.chunks) {
+			// calculate bounds of this chunk.
+			int end = start + chunk.size();
+			
+			// Check whether the index should be in this chunk:
+			if (start <= index && index < end) {
+				T removed = chunk.removeIndex(index-start);
+				// Remove empty chunk.
+				if (chunk.isEmpty()) {
+					chunks.removeIndex(chunkIndex);
+				}
+				return removed;
+			}
+			
+			// update bounds of next chunk and its index.
+			start = end;
+			chunkIndex++;
+		}
+		throw new BadIndexError(index);
 	}
 
 	@Override
 	public void addFront(T item) {
-		throw new TODOErr();
+		if (this.chunks.isEmpty() || chunks.getFront().isFull()) {
+			this.chunks.addFront(makeChunk());
+		}
+		this.chunks.getFront().addFront(item);
 	}
 
 	@Override
 	public void addBack(T item) {
-		throw new TODOErr();
+		if (this.chunks.isEmpty() || this.chunks.getBack().isFull()) {
+			this.chunks.addBack(makeChunk());
+		}
+		this.chunks.getBack().addBack(item);
 	}
 
 	@Override
 	public void addIndex(int index, T item) {
-		// THIS IS THE HARDEST METHOD IN CHUNKY-ARRAY-LIST.
-		// DO IT LAST.
 		
 		int chunkIndex = 0;
 		int start = 0;
@@ -67,13 +101,25 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 				if (chunk.isFull()) {
 					// check can roll to next
 					// or need a new chunk
-					throw new TODOErr();
+					FixedSizeList<T> newChunk = makeChunk();
+					
+					// if insert after the chunk itself
+					if (index-start == this.chunkSize) {
+						newChunk.addBack(item);
+					// insert somewhere inside the chunk
+					} else {
+						newChunk.addBack(chunk.removeBack());
+						// chunk is now not full:
+						chunk.addIndex(index-start, item);
+					}
+					// add new chunk after current chunk
+					this.chunks.addIndex(chunkIndex+1, newChunk);
 				} else {
 					// put right in this chunk, there's space.
-					throw new TODOErr();
+					chunk.addIndex(index-start, item);
 				}	
 				// upon adding, return.
-				// return;
+				return;
 			}
 			
 			// update bounds of next chunk.
@@ -117,7 +163,22 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 	
 	@Override
 	public void setIndex(int index, T value) {
-		throw new TODOErr();
+		checkNotEmpty();
+		int start = 0;
+		for (FixedSizeList<T> chunk : this.chunks) {
+			// calculate bounds of this chunk.
+			int end = start + chunk.size();
+				
+			// Check whether the index should be in this chunk:
+			if (start <= index && index < end) {
+				chunk.setIndex(index - start, value);
+				return;
+			}
+			
+			// update bounds of next chunk.
+			start = end;
+		}
+		throw new BadIndexError(index);
 	}
 
 	@Override
