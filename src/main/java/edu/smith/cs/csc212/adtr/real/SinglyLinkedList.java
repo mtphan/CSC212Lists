@@ -44,16 +44,11 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 		if (index == 0) {
 			return removeFront();
 		}
-		
-		int at = 0;
-		for (Node<T> n = this.start; n.next != null; n = n.next) {
-			if (++at == index) {
-				T removed = n.next.value;
-				n.next = n.next.next;
-				return removed;
-			}
-		}
-		throw new BadIndexError(index);
+
+		Node<T> beforeIndex = getNode(index-1);
+		T removed = beforeIndex.next.value;
+		beforeIndex.next = beforeIndex.next.next;
+		return removed;
 	}
 
 	@Override
@@ -80,18 +75,11 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 			addFront(item);
 			return;
 		}
-		int at = 0;
-		for (Node<T> n = this.start; n != null; n = n.next) {
-			if (++at == index) {
-				Node<T> newNode = new Node<T>(item, n.next);
-				n.next = newNode;
-				return;
-			}
-		}
-		throw new BadIndexError(index);
+		
+		Node<T> beforeIndex = getNode(index-1);
+		beforeIndex.next = new Node<T>(item, beforeIndex.next);
+		return;
 	}
-	
-	
 	
 	@Override
 	public T getFront() {
@@ -112,28 +100,14 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 	@Override
 	public T getIndex(int index) {
 		checkNotEmpty();
-		int at = 0;
-		for (Node<T> n = this.start; n != null; n = n.next) {
-			if (at++ == index) {
-				return n.value;
-			}
-		}
-		throw new BadIndexError(index);
+		return getNode(index).value;
 	}
 	
 
 	@Override
 	public void setIndex(int index, T value) {
 		checkNotEmpty();
-		
-		int at = 0;
-		for (Node<T> n = this.start; n != null; n = n.next) {
-			if (at++ == index) {
-				n.value = value;
-				return;
-			}
-		}
-		throw new BadIndexError(index);
+		getNode(index).value = value;
 	}
 
 	@Override
@@ -148,6 +122,21 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 	@Override
 	public boolean isEmpty() {
 		return this.start == null;
+	}
+
+	/**
+	 * Return the Node at the specified index.
+	 * @param index - the index of the Node.
+	 * @return the Node at index. Throw a BadIndexError if no such node is found.
+	 */
+	private Node<T> getNode(int index) {
+		int at = 0;
+		for (Node<T> n = start; n != null; n = n.next) {
+			if (at++ == index) {
+				return n;
+			}
+		}
+		throw new BadIndexError(index);
 	}
 	
 	/**

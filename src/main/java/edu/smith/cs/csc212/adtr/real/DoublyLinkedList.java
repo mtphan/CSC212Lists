@@ -14,7 +14,6 @@ public class DoublyLinkedList<T> extends ListADT<T> {
 		this.start = null;
 		this.end = null;
 	}
-	
 
 	@Override
 	public T removeFront() {
@@ -54,21 +53,17 @@ public class DoublyLinkedList<T> extends ListADT<T> {
 			return removeFront();
 		}
 		
-		int at = 0;
-		for (Node<T> n = this.start; n != null; n = n.after) {
-			if (at++ == index) {
-				T removed = n.value;
-				n.before.after = n.after;
-				// Remove back
-				if (n.after == null) {
-					this.end = n.before;
-				} else {
-					n.after.before = n.before;
-				}
-				return removed;
-			}
+		Node<T> atIndex = getNode(index);
+		T removed = atIndex.value;
+		atIndex.before.after = atIndex.after;
+		
+		if (atIndex.after == null) {
+			// remove Node at the very end.
+			this.end = atIndex.before;
+		} else {
+			atIndex.after.before = atIndex.before;
 		}
-		throw new BadIndexError(index);
+		return removed;
 	}
 
 	@Override
@@ -97,30 +92,27 @@ public class DoublyLinkedList<T> extends ListADT<T> {
 
 	@Override
 	public void addIndex(int index, T item) {
-		Node<T> toAdd = new Node<T>(item);
 		if (index == 0) {
 			addFront(item);
 			return;
 		}
 		
-		int at = 0;		
-		for (Node<T> n = this.start; n != null; n = n.after) {
-			// Support adding at the very back.
-			if (++at == index) {
-				Node<T> atIndex = n.after;
-				toAdd.before = n;
-				toAdd.after = atIndex;
-				n.after = toAdd;
-				// If at the very end;
-				if (atIndex == null) {
-					this.end = toAdd;
-				} else {
-					atIndex.before = toAdd;
-				}
-				return;
-			}
+		//support adding at the very end:
+		Node<T> beforeIndex = getNode(index-1);
+		Node<T> toAdd = new Node<T>(item);
+		
+		toAdd.before = beforeIndex;
+		toAdd.after = beforeIndex.after;
+		//link original node before index to toAdd.
+		beforeIndex.after = toAdd;
+		
+		if (toAdd.after == null) {
+			//adding at the very end
+			this.end = toAdd;
+		} else {
+			// link original node at index to toAdd.
+			toAdd.after.before = toAdd;
 		}
-		throw new BadIndexError(index);
 	}
 
 	@Override
@@ -138,26 +130,12 @@ public class DoublyLinkedList<T> extends ListADT<T> {
 	@Override
 	public T getIndex(int index) {
 		checkNotEmpty();
-		int at = 0;
-		for (Node<T> n = start; n != null; n = n.after) {
-			if (at++ == index) {
-				return n.value;
-			}
-		}
-		throw new BadIndexError(index);
+		return getNode(index).value;
 	}
 	
 	public void setIndex(int index, T value) {
 		checkNotEmpty();
-		
-		int at = 0;
-		for (Node<T> n = start; n != null; n = n.after) {
-			if (at++ == index) {
-				n.value =value;
-				return;
-			}
-		}
-		throw new BadIndexError(index);
+		getNode(index).value = value;
 	}
 
 	@Override
@@ -172,6 +150,16 @@ public class DoublyLinkedList<T> extends ListADT<T> {
 	@Override
 	public boolean isEmpty() {
 		return (this.start == null && this.end == null);
+	}
+	
+	private Node<T> getNode(int index) {
+		int at = 0;
+		for (Node<T> n = this.start; n != null; n = n.after) {
+			if (at++ == index) {
+				return n;
+			}
+		}
+		throw new BadIndexError(index);
 	}
 	
 	/**

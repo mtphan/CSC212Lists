@@ -97,21 +97,18 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 			int end = start + chunk.size();
 			
 			// Check whether the index should be in this chunk:
-			if (start <= index && index <= end) {
+			// if index is added at the very end of a full chunk then check index against end-1 instead of end.
+			// (i.e. use index < end instead of index <= end).
+			if (start <= index && index <= (index-start == chunkSize ? end-1 : end)) {
 				if (chunk.isFull()) {
 					// check can roll to next
 					// or need a new chunk
 					FixedSizeList<T> newChunk = makeChunk();
 					
-					// if insert after the chunk itself
-					if (index-start == this.chunkSize) {
-						newChunk.addBack(item);
-					// insert somewhere inside the chunk
-					} else {
-						newChunk.addBack(chunk.removeBack());
-						// chunk is now not full:
-						chunk.addIndex(index-start, item);
-					}
+					newChunk.addBack(chunk.removeBack());
+					// chunk is now not full:
+					chunk.addIndex(index-start, item);
+					
 					// add new chunk after current chunk
 					this.chunks.addIndex(chunkIndex+1, newChunk);
 				} else {
