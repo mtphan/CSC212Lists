@@ -1,5 +1,7 @@
 package edu.smith.cs.csc212.adtr.real;
 
+import java.util.Iterator;
+
 import edu.smith.cs.csc212.adtr.ListADT;
 import edu.smith.cs.csc212.adtr.errors.BadIndexError;
 
@@ -122,6 +124,27 @@ public class SinglyLinkedList<T> extends ListADT<T> {
 	@Override
 	public boolean isEmpty() {
 		return this.start == null;
+	}
+	
+	@Override
+	public Iterator<T> iterator() {
+		SinglyLinkedList<T> self = this;
+		return new Iterator<T>() {
+			Node<T> current = self.start;
+			
+			@Override
+			public boolean hasNext() {
+				return current != null;
+			}
+			
+			@Override
+			public T next() {
+				T value = current.value;
+				current = current.next;
+				return value;
+			}
+			
+		};
 	}
 
 	/**
