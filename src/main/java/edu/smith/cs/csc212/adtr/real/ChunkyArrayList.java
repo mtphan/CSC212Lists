@@ -1,5 +1,7 @@
 package edu.smith.cs.csc212.adtr.real;
 
+import java.util.Iterator;
+
 import edu.smith.cs.csc212.adtr.ListADT;
 import edu.smith.cs.csc212.adtr.errors.BadIndexError;
 import edu.smith.cs.csc212.adtr.errors.EmptyListError;
@@ -190,5 +192,33 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 	@Override
 	public boolean isEmpty() {
 		return this.chunks.isEmpty();
+	}
+	
+	@Override
+	public Iterator<T> iterator() {
+		ChunkyArrayList<T> self = this;
+		return new Iterator<T>() {
+			// index for a single chunk/block (not the overall list, just inside a single chunk).
+			// get set to 0 every time we go to a new chunk.
+			int i = 0;
+			Iterator<FixedSizeList<T>> chunkIterator = self.chunks.iterator();
+			// chunk = chunks[0] initially.
+			FixedSizeList<T> chunk = chunkIterator.next();
+			
+			@Override
+			public boolean hasNext() {
+				// false if index is at the end of block and there is no block after it.
+				return (i<chunk.size() || chunkIterator.hasNext());
+			}
+			
+			public T next() {
+				if (i == chunk.size()) {
+				// if i is at the end of block, go to the next one and reset i to 0.	
+					chunk = chunkIterator.next();
+					i = 0;
+				}
+				return chunk.getIndex(i++);
+			}
+		};
 	}
 }
