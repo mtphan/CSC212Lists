@@ -106,17 +106,14 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 					// check can roll to next
 					// or need a new chunk
 					FixedSizeList<T> newChunk = makeChunk();
-					
 					newChunk.addBack(chunk.removeBack());
-					// chunk is now not full:
-					chunk.addIndex(index-start, item);
 					
 					// add new chunk after current chunk
 					this.chunks.addIndex(chunkIndex+1, newChunk);
-				} else {
-					// put right in this chunk, there's space.
-					chunk.addIndex(index-start, item);
-				}	
+				}
+				
+				// put right in this chunk, there's space now.
+				chunk.addIndex(index-start, item);
 				// upon adding, return.
 				return;
 			}
